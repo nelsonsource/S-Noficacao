@@ -1,0 +1,10 @@
+ujc\notificacao\system\sistema_notificacao\entity\Atendimento.class
+ujc\notificacao\system\sistema_notificacao\entity\PedidoEstado.class
+ujc\notificacao\system\sistema_notificacao\entity\EstadoEstudante.class
+ujc\notificacao\system\sistema_notificacao\entity\Documento.class
+ujc\notificacao\system\sistema_notificacao\entity\Notificacao.class
+ujc\notificacao\system\sistema_notificacao\entity\Atendente.class
+ujc\notificacao\system\sistema_notificacao\entity\Estudante.class
+ujc\notificacao\system\sistema_notificacao\ServletInitializer.class
+ujc\notificacao\system\sistema_notificacao\SistemaNotificacaoApplication.class
+ujc\notificacao\system\sistema_notificacao\entity\Pedido.class
