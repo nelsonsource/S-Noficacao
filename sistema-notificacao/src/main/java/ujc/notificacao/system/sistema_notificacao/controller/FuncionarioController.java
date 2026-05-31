@@ -3,10 +3,9 @@ package ujc.notificacao.system.sistema_notificacao.controller;
 import ujc.notificacao.system.sistema_notificacao.dto.request.FuncionarioRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.FuncionarioResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.service.FuncionarioService;
-import ujc.notificacao.system.sistema_notificacao.util.ApiResponse;
+import ujc.notificacao.system.sistema_notificacao.util.ResponseHandler;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -19,91 +18,95 @@ public class FuncionarioController {
     @Autowired
     private FuncionarioService funcionarioService;
 
-    // Criar funcionário
     @PostMapping
-    public ResponseEntity<ApiResponse<FuncionarioResponseDTO>> criar(@Valid @RequestBody FuncionarioRequestDTO dto) {
+    public ResponseEntity<?> criar(@Valid @RequestBody FuncionarioRequestDTO dto) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.criarFuncionario(dto);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.created(funcionario, "Funcionário criado com sucesso"));
+            return ResponseHandler.created(funcionario, "Funcionário criado com sucesso");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(e.getMessage(), 400));
+            String msg = e.getMessage();
+            if (msg.contains("duplicado") || msg.contains("inválido") || msg.contains("obrigatório")) {
+                return ResponseHandler.badRequest(msg);
+            }
+            return ResponseHandler.internalServerError("Erro interno ao criar funcionário");
         }
     }
 
-    // Listar todos os funcionários
     @GetMapping
-    public ResponseEntity<ApiResponse<List<FuncionarioResponseDTO>>> listarTodos() {
+    public ResponseEntity<?> listarTodos() {
         List<FuncionarioResponseDTO> funcionarios = funcionarioService.listarTodos();
-        return ResponseEntity.ok(ApiResponse.success(funcionarios, "Lista de funcionários obtida com sucesso"));
+        return ResponseHandler.ok(funcionarios, "Lista de funcionários obtida com sucesso");
     }
 
-    // Buscar funcionário por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<FuncionarioResponseDTO>> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.buscarPorId(id);
-            return ResponseEntity.ok(ApiResponse.success(funcionario, "Funcionário encontrado"));
+            return ResponseHandler.ok(funcionario, "Funcionário encontrado");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Funcionário", String.valueOf(id));
         }
     }
 
-    // Buscar por email
     @GetMapping("/email/{email}")
-    public ResponseEntity<ApiResponse<FuncionarioResponseDTO>> buscarPorEmail(@PathVariable String email) {
+    public ResponseEntity<?> buscarPorEmail(@PathVariable String email) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.buscarPorEmail(email);
-            return ResponseEntity.ok(ApiResponse.success(funcionario, "Funcionário encontrado"));
+            return ResponseHandler.ok(funcionario, "Funcionário encontrado");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Funcionário com email", email);
         }
     }
 
-    // Buscar por nome
     @GetMapping("/buscar/nome")
-    public ResponseEntity<ApiResponse<List<FuncionarioResponseDTO>>> buscarPorNome(@RequestParam String nome) {
+    public ResponseEntity<?> buscarPorNome(@RequestParam String nome) {
         try {
             List<FuncionarioResponseDTO> funcionarios = funcionarioService.buscarPorNome(nome);
-            return ResponseEntity.ok(ApiResponse.success(funcionarios, "Busca realizada com sucesso"));
+            if (funcionarios.isEmpty()) {
+                return ResponseHandler.ok(funcionarios, "Nenhum funcionário encontrado com o nome: " + nome);
+            }
+            return ResponseHandler.ok(funcionarios, "Busca realizada com sucesso");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(e.getMessage(), 400));
+            return ResponseHandler.badRequest(e.getMessage());
         }
     }
 
-    // Buscar por curso
     @GetMapping("/curso/{curso}")
-    public ResponseEntity<ApiResponse<List<FuncionarioResponseDTO>>> buscarPorCurso(@PathVariable String curso) {
+    public ResponseEntity<?> buscarPorCurso(@PathVariable String curso) {
         List<FuncionarioResponseDTO> funcionarios = funcionarioService.buscarPorCurso(curso);
-        return ResponseEntity.ok(ApiResponse.success(funcionarios, "Funcionários do curso " + curso));
+        if (funcionarios.isEmpty()) {
+            return ResponseHandler.ok(funcionarios, "Nenhum funcionário encontrado no curso: " + curso);
+        }
+        return ResponseHandler.ok(funcionarios, "Funcionários do curso " + curso);
     }
 
-    // Atualizar funcionário
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<FuncionarioResponseDTO>> atualizar(@PathVariable Long id, @Valid @RequestBody FuncionarioRequestDTO dto) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestBody FuncionarioRequestDTO dto) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.atualizarFuncionario(id, dto);
-            return ResponseEntity.ok(ApiResponse.success(funcionario, "Funcionário atualizado com sucesso"));
+            return ResponseHandler.ok(funcionario, "Funcionário atualizado com sucesso");
         } catch (RuntimeException e) {
-            HttpStatus status = e.getMessage().contains("não encontrado") ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
-            return ResponseEntity.status(status)
-                    .body(ApiResponse.error(e.getMessage(), status.value()));
+            String msg = e.getMessage();
+            if (msg.contains("não encontrado")) {
+                return ResponseHandler.notFound("Funcionário", String.valueOf(id));
+            }
+            if (msg.contains("duplicado") || msg.contains("inválido")) {
+                return ResponseHandler.badRequest(msg);
+            }
+            return ResponseHandler.internalServerError("Erro interno ao atualizar funcionário");
         }
     }
 
-    // Deletar funcionário
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable Long id) {
+    public ResponseEntity<?> deletar(@PathVariable Long id) {
         try {
             funcionarioService.deletarFuncionario(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "Funcionário deletado com sucesso"));
+            return ResponseHandler.noContent("Funcionário deletado com sucesso");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            if (e.getMessage().contains("não encontrado")) {
+                return ResponseHandler.notFound("Funcionário", String.valueOf(id));
+            }
+            return ResponseHandler.internalServerError("Erro interno ao deletar funcionário");
         }
     }
 }

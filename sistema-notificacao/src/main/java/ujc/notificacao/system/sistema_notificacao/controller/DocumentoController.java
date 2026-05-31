@@ -4,10 +4,9 @@ import ujc.notificacao.system.sistema_notificacao.dto.request.DocumentoRequestDT
 import ujc.notificacao.system.sistema_notificacao.dto.response.DocumentoResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.CampoDocumentoDTO;
 import ujc.notificacao.system.sistema_notificacao.service.DocumentoService;
-import ujc.notificacao.system.sistema_notificacao.util.ApiResponse;
+import ujc.notificacao.system.sistema_notificacao.util.ResponseHandler;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,111 +19,128 @@ public class DocumentoController {
     @Autowired
     private DocumentoService documentoService;
 
-    // Criar documento
     @PostMapping
-    public ResponseEntity<ApiResponse<DocumentoResponseDTO>> criar(@Valid @RequestBody DocumentoRequestDTO dto) {
+    public ResponseEntity<?> criar(@Valid @RequestBody DocumentoRequestDTO dto) {
         try {
             DocumentoResponseDTO documento = documentoService.criarDocumento(dto);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.created(documento, "Documento criado com sucesso"));
+            return ResponseHandler.created(documento, "Documento criado com sucesso");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(e.getMessage(), 400));
+            String msg = e.getMessage();
+            if (msg.contains("duplicado")) {
+                return ResponseHandler.conflict(msg);
+            }
+            if (msg.contains("inválido") || msg.contains("obrigatório")) {
+                return ResponseHandler.badRequest(msg);
+            }
+            return ResponseHandler.internalServerError("Erro interno ao criar documento");
         }
     }
 
-    // Listar todos os documentos
     @GetMapping
-    public ResponseEntity<ApiResponse<List<DocumentoResponseDTO>>> listarTodos() {
+    public ResponseEntity<?> listarTodos() {
         List<DocumentoResponseDTO> documentos = documentoService.listarTodos();
-        return ResponseEntity.ok(ApiResponse.success(documentos, "Lista de documentos obtida com sucesso"));
+        return ResponseHandler.ok(documentos, "Lista de documentos obtida com sucesso");
     }
 
-    // Buscar documento por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<DocumentoResponseDTO>> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         try {
             DocumentoResponseDTO documento = documentoService.buscarPorId(id);
-            return ResponseEntity.ok(ApiResponse.success(documento, "Documento encontrado"));
+            return ResponseHandler.ok(documento, "Documento encontrado");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Documento", String.valueOf(id));
         }
     }
 
-    // Buscar por código
     @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<ApiResponse<DocumentoResponseDTO>> buscarPorCodigo(@PathVariable String codigo) {
+    public ResponseEntity<?> buscarPorCodigo(@PathVariable String codigo) {
         try {
             DocumentoResponseDTO documento = documentoService.buscarPorCodigo(codigo);
-            return ResponseEntity.ok(ApiResponse.success(documento, "Documento encontrado"));
+            return ResponseHandler.ok(documento, "Documento encontrado");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Documento com código", codigo);
         }
     }
 
-    // Buscar por nome
     @GetMapping("/buscar/nome")
-    public ResponseEntity<ApiResponse<List<DocumentoResponseDTO>>> buscarPorNome(@RequestParam String nome) {
+    public ResponseEntity<?> buscarPorNome(@RequestParam String nome) {
         List<DocumentoResponseDTO> documentos = documentoService.buscarPorNome(nome);
-        return ResponseEntity.ok(ApiResponse.success(documentos, "Documentos encontrados"));
+        if (documentos.isEmpty()) {
+            return ResponseHandler.ok(documentos, "Nenhum documento encontrado com o nome: " + nome);
+        }
+        return ResponseHandler.ok(documentos, "Documentos encontrados");
     }
 
-    // Buscar por faixa de taxa
     @GetMapping("/buscar/taxa")
-    public ResponseEntity<ApiResponse<List<DocumentoResponseDTO>>> buscarPorFaixaTaxa(@RequestParam Double min, @RequestParam Double max) {
+    public ResponseEntity<?> buscarPorFaixaTaxa(@RequestParam Double min, @RequestParam Double max) {
+        if (min > max) {
+            return ResponseHandler.badRequest("O valor mínimo não pode ser maior que o máximo");
+        }
         List<DocumentoResponseDTO> documentos = documentoService.buscarPorFaixaTaxa(min, max);
-        return ResponseEntity.ok(ApiResponse.success(documentos, "Documentos encontrados na faixa de taxa"));
+        return ResponseHandler.ok(documentos, "Documentos encontrados na faixa de taxa");
     }
 
-    // Atualizar documento
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<DocumentoResponseDTO>> atualizar(@PathVariable Long id, @Valid @RequestBody DocumentoRequestDTO dto) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestBody DocumentoRequestDTO dto) {
         try {
             DocumentoResponseDTO documento = documentoService.atualizarDocumento(id, dto);
-            return ResponseEntity.ok(ApiResponse.success(documento, "Documento atualizado com sucesso"));
+            return ResponseHandler.ok(documento, "Documento atualizado com sucesso");
         } catch (RuntimeException e) {
-            HttpStatus status = e.getMessage().contains("não encontrado") ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
-            return ResponseEntity.status(status)
-                    .body(ApiResponse.error(e.getMessage(), status.value()));
+            String msg = e.getMessage();
+            if (msg.contains("não encontrado")) {
+                return ResponseHandler.notFound("Documento", String.valueOf(id));
+            }
+            if (msg.contains("duplicado")) {
+                return ResponseHandler.conflict(msg);
+            }
+            if (msg.contains("inválido")) {
+                return ResponseHandler.badRequest(msg);
+            }
+            return ResponseHandler.internalServerError("Erro interno ao atualizar documento");
         }
     }
 
-    // Adicionar campo ao documento
     @PostMapping("/{documentoId}/campos")
-    public ResponseEntity<ApiResponse<DocumentoResponseDTO>> adicionarCampo(@PathVariable Long documentoId, @RequestBody CampoDocumentoDTO campoDTO) {
+    public ResponseEntity<?> adicionarCampo(@PathVariable Long documentoId, @RequestBody CampoDocumentoDTO campoDTO) {
         try {
             DocumentoResponseDTO documento = documentoService.adicionarCampoAoDocumento(documentoId, campoDTO);
-            return ResponseEntity.ok(ApiResponse.success(documento, "Campo adicionado com sucesso"));
+            return ResponseHandler.ok(documento, "Campo adicionado com sucesso");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(e.getMessage(), 400));
+            if (e.getMessage().contains("não encontrado")) {
+                return ResponseHandler.notFound("Documento", String.valueOf(documentoId));
+            }
+            return ResponseHandler.badRequest(e.getMessage());
         }
     }
 
-    // Remover campo do documento
     @DeleteMapping("/{documentoId}/campos/{campoId}")
-    public ResponseEntity<ApiResponse<DocumentoResponseDTO>> removerCampo(@PathVariable Long documentoId, @PathVariable Long campoId) {
+    public ResponseEntity<?> removerCampo(@PathVariable Long documentoId, @PathVariable Long campoId) {
         try {
             DocumentoResponseDTO documento = documentoService.removerCampoDoDocumento(documentoId, campoId);
-            return ResponseEntity.ok(ApiResponse.success(documento, "Campo removido com sucesso"));
+            return ResponseHandler.ok(documento, "Campo removido com sucesso");
         } catch (RuntimeException e) {
-            HttpStatus status = e.getMessage().contains("não encontrado") ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
-            return ResponseEntity.status(status)
-                    .body(ApiResponse.error(e.getMessage(), status.value()));
+            String msg = e.getMessage();
+            if (msg.contains("não encontrado")) {
+                return ResponseHandler.notFound("Campo", String.valueOf(campoId));
+            }
+            return ResponseHandler.badRequest(msg);
         }
     }
 
-    // Deletar documento
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable Long id) {
+    public ResponseEntity<?> deletar(@PathVariable Long id) {
         try {
             documentoService.deletarDocumento(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "Documento deletado com sucesso"));
+            return ResponseHandler.noContent("Documento deletado com sucesso");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            String msg = e.getMessage();
+            if (msg.contains("não encontrado")) {
+                return ResponseHandler.notFound("Documento", String.valueOf(id));
+            }
+            if (msg.contains("pedidos associados") || msg.contains("foreign key")) {
+                return ResponseHandler.conflict("Não é possível deletar documento com pedidos associados");
+            }
+            return ResponseHandler.internalServerError("Erro interno ao deletar documento");
         }
     }
 }

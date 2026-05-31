@@ -3,11 +3,10 @@ package ujc.notificacao.system.sistema_notificacao.controller;
 import ujc.notificacao.system.sistema_notificacao.dto.request.LevantamentoRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.LevantamentoResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.service.LevantamentoService;
-import ujc.notificacao.system.sistema_notificacao.util.ApiResponse;
+import ujc.notificacao.system.sistema_notificacao.util.ResponseHandler;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
@@ -21,94 +20,92 @@ public class LevantamentoController {
     @Autowired
     private LevantamentoService levantamentoService;
 
-    // Registrar levantamento
     @PostMapping
-    public ResponseEntity<ApiResponse<LevantamentoResponseDTO>> registrar(@Valid @RequestBody LevantamentoRequestDTO dto) {
+    public ResponseEntity<?> registrar(@Valid @RequestBody LevantamentoRequestDTO dto) {
         try {
             LevantamentoResponseDTO levantamento = levantamentoService.registrarLevantamento(dto);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.created(levantamento, "Levantamento registrado com sucesso"));
+            return ResponseHandler.created(levantamento, "Levantamento registrado com sucesso");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(e.getMessage(), 400));
+            String msg = e.getMessage();
+            if (msg.contains("não encontrado")) {
+                return ResponseHandler.notFound(msg);
+            }
+            if (msg.contains("já foi levantado")) {
+                return ResponseHandler.conflict(msg);
+            }
+            if (msg.contains("não está pronto")) {
+                return ResponseHandler.badRequest(msg);
+            }
+            return ResponseHandler.internalServerError("Erro interno ao registrar levantamento");
         }
     }
 
-    // Listar todos os levantamentos
     @GetMapping
-    public ResponseEntity<ApiResponse<List<LevantamentoResponseDTO>>> listarTodos() {
+    public ResponseEntity<?> listarTodos() {
         List<LevantamentoResponseDTO> levantamentos = levantamentoService.listarTodos();
-        return ResponseEntity.ok(ApiResponse.success(levantamentos, "Lista de levantamentos obtida com sucesso"));
+        return ResponseHandler.ok(levantamentos, "Lista de levantamentos obtida com sucesso");
     }
 
-    // Buscar levantamento por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<LevantamentoResponseDTO>> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         try {
             LevantamentoResponseDTO levantamento = levantamentoService.buscarPorId(id);
-            return ResponseEntity.ok(ApiResponse.success(levantamento, "Levantamento encontrado"));
+            return ResponseHandler.ok(levantamento, "Levantamento encontrado");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Levantamento", String.valueOf(id));
         }
     }
 
-    // Buscar por pedido
     @GetMapping("/pedido/{pedidoId}")
-    public ResponseEntity<ApiResponse<LevantamentoResponseDTO>> buscarPorPedido(@PathVariable Long pedidoId) {
+    public ResponseEntity<?> buscarPorPedido(@PathVariable Long pedidoId) {
         try {
             LevantamentoResponseDTO levantamento = levantamentoService.buscarPorPedido(pedidoId);
-            return ResponseEntity.ok(ApiResponse.success(levantamento, "Levantamento do pedido encontrado"));
+            return ResponseHandler.ok(levantamento, "Levantamento do pedido encontrado");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Levantamento para pedido", String.valueOf(pedidoId));
         }
     }
 
-    // Buscar por data
     @GetMapping("/data")
-    public ResponseEntity<ApiResponse<List<LevantamentoResponseDTO>>> buscarPorData(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+    public ResponseEntity<?> buscarPorData(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
         List<LevantamentoResponseDTO> levantamentos = levantamentoService.buscarPorData(data);
-        return ResponseEntity.ok(ApiResponse.success(levantamentos, "Levantamentos da data " + data));
+        return ResponseHandler.ok(levantamentos, "Levantamentos da data " + data);
     }
 
-    // Buscar por período
     @GetMapping("/periodo")
-    public ResponseEntity<ApiResponse<List<LevantamentoResponseDTO>>> buscarPorPeriodo(
+    public ResponseEntity<?> buscarPorPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+        if (inicio.isAfter(fim)) {
+            return ResponseHandler.badRequest("Data inicial não pode ser maior que a data final");
+        }
         List<LevantamentoResponseDTO> levantamentos = levantamentoService.buscarPorPeriodo(inicio, fim);
-        return ResponseEntity.ok(ApiResponse.success(levantamentos, "Levantamentos do período"));
+        return ResponseHandler.ok(levantamentos, "Levantamentos do período");
     }
 
-    // Buscar por funcionário
     @GetMapping("/funcionario/{funcionarioId}")
-    public ResponseEntity<ApiResponse<List<LevantamentoResponseDTO>>> buscarPorFuncionario(@PathVariable Long funcionarioId) {
+    public ResponseEntity<?> buscarPorFuncionario(@PathVariable Long funcionarioId) {
         try {
             List<LevantamentoResponseDTO> levantamentos = levantamentoService.buscarPorFuncionario(funcionarioId);
-            return ResponseEntity.ok(ApiResponse.success(levantamentos, "Levantamentos realizados pelo funcionário"));
+            return ResponseHandler.ok(levantamentos, "Levantamentos realizados pelo funcionário");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Funcionário", String.valueOf(funcionarioId));
         }
     }
 
-    // Contar por funcionário
     @GetMapping("/contar/funcionario/{funcionarioId}")
-    public ResponseEntity<ApiResponse<Long>> contarPorFuncionario(@PathVariable Long funcionarioId) {
+    public ResponseEntity<?> contarPorFuncionario(@PathVariable Long funcionarioId) {
         try {
             Long quantidade = levantamentoService.contarPorFuncionario(funcionarioId);
-            return ResponseEntity.ok(ApiResponse.success(quantidade, "Total de levantamentos realizados pelo funcionário"));
+            return ResponseHandler.ok(quantidade, "Total de levantamentos realizados pelo funcionário");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(e.getMessage(), 404));
+            return ResponseHandler.notFound("Funcionário", String.valueOf(funcionarioId));
         }
     }
 
-    // Últimos levantamentos
     @GetMapping("/ultimos")
-    public ResponseEntity<ApiResponse<List<LevantamentoResponseDTO>>> ultimosLevantamentos() {
+    public ResponseEntity<?> ultimosLevantamentos() {
         List<LevantamentoResponseDTO> levantamentos = levantamentoService.buscarUltimosLevantamentos();
-        return ResponseEntity.ok(ApiResponse.success(levantamentos, "Últimos 10 levantamentos"));
+        return ResponseHandler.ok(levantamentos, "Últimos 10 levantamentos");
     }
 }

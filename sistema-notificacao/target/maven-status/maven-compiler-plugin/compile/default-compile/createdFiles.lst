@@ -1,6 +1,7 @@
 ujc\notificacao\system\sistema_notificacao\controller\DocumentoController.class
 ujc\notificacao\system\sistema_notificacao\dto\FuncionarioResumoDTO.class
 ujc\notificacao\system\sistema_notificacao\dto\response\EstudanteResponseDTO.class
+ujc\notificacao\system\sistema_notificacao\util\ResponseHandler.class
 ujc\notificacao\system\sistema_notificacao\entity\Documento.class
 ujc\notificacao\system\sistema_notificacao\repository\LevantamentoRepository.class
 ujc\notificacao\system\sistema_notificacao\repository\PedidoRespostaRepository.class
