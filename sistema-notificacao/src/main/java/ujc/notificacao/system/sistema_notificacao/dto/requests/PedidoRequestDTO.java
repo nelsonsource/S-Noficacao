@@ -1,8 +1,11 @@
 package ujc.notificacao.system.sistema_notificacao.dto.request;
 
+
+import ujc.notificacao.system.sistema_notificacao.dto.PedidoRespostaDTO;
+import java.util.List;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.List;
+
 
 public class PedidoRequestDTO {
 

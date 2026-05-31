@@ -1,5 +1,7 @@
 package ujc.notificacao.system.sistema_notificacao.dto.response;
 
+import ujc.notificacao.system.sistema_notificacao.dto.PedidoResumoDTO;
+import ujc.notificacao.system.sistema_notificacao.dto.FuncionarioResumoDTO;
 import java.time.LocalDate;
 
 public class LevantamentoResponseDTO {

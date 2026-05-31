@@ -1,5 +1,8 @@
 package ujc.notificacao.system.sistema_notificacao.dto.response;
 
+import ujc.notificacao.system.sistema_notificacao.dto.EstudanteResumoDTO;
+import ujc.notificacao.system.sistema_notificacao.dto.DocumentoResumoDTO;
+import ujc.notificacao.system.sistema_notificacao.dto.PedidoRespostaDTO;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;

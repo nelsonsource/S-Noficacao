@@ -6,7 +6,6 @@ import ujc.notificacao.system.sistema_notificacao.dto.request.PedidoRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.PedidoResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.PedidoRespostaDTO;
 import ujc.notificacao.system.sistema_notificacao.util.ValidationUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +31,7 @@ public class PedidoService {
     @Autowired
     private PedidoRespostaRepository pedidoRespostaRepository;
     
-    @Autowired
-    private ObjectMapper objectMapper;
+
 
     // Criar novo pedido
     @Transactional

@@ -1,7 +1,10 @@
 package ujc.notificacao.system.sistema_notificacao.dto.request;
 
-import jakarta.validation.constraints.*;
+
+import ujc.notificacao.system.sistema_notificacao.dto.CampoDocumentoDTO;
 import java.util.List;
+import jakarta.validation.constraints.*;
+
 
 public class DocumentoRequestDTO {
 

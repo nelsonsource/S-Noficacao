@@ -1,5 +1,6 @@
 package ujc.notificacao.system.sistema_notificacao.dto.response;
 
+import ujc.notificacao.system.sistema_notificacao.dto.CampoDocumentoDTO;
 import java.util.List;
 import java.util.stream.Collectors;
 
