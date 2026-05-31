@@ -47,4 +47,5 @@ ujc\notificacao\system\sistema_notificacao\service\LevantamentoService.class
 ujc\notificacao\system\sistema_notificacao\util\ValidationUtils.class
 ujc\notificacao\system\sistema_notificacao\dto\PedidoRespostaDTO.class
 ujc\notificacao\system\sistema_notificacao\controller\PedidoController.class
+ujc\notificacao\system\sistema_notificacao\entity\Perfil.class
 ujc\notificacao\system\sistema_notificacao\dto\request\PedidoRequestDTO.class
