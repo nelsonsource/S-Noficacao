@@ -1,50 +1,60 @@
 package ujc.notificacao.system.sistema_notificacao.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import ujc.notificacao.system.sistema_notificacao.entity.Pedido;
 import ujc.notificacao.system.sistema_notificacao.entity.PedidoEstado;
-
+import ujc.notificacao.system.sistema_notificacao.entity.Estudante;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
+@Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
-
-    // 1. Buscar por atendimento
-    List<Pedido> findByAtendimentoIdAtendimento(Long idAtendimento);
-
-    // 2. Buscar por documento
-    List<Pedido> findByDocumentoIdDocumento(Long idDocumento);
-
-    // 3. Buscar por estado do pedido (ENUM)
-    List<Pedido> findByEstadoPedido(PedidoEstado estadoPedido);
-
-    // 4. Buscar por data do pedido
+    
+    // Buscar por código (único)
+    Optional<Pedido> findByCodigo(String codigo);
+    
+    // Buscar pedidos por estudante
+    List<Pedido> findByEstudante(Estudante estudante);
+    
+    // Buscar pedidos por estado
+    List<Pedido> findByEstadoPedido(PedidoEstado estado);
+    
+    // Buscar pedidos por data
     List<Pedido> findByDataPedido(LocalDate dataPedido);
-
-    // 5. Buscar por observação contendo texto
-    List<Pedido> findByObservacaoContainingIgnoreCase(String observacao);
-
-    // 6. Buscar por atendimento e documento
-    List<Pedido> findByAtendimentoIdAtendimentoAndDocumentoIdDocumento(Long idAtendimento, Long idDocumento);
-
-    // 7. Buscar por documento e estado
-    List<Pedido> findByDocumentoIdDocumentoAndEstadoPedido(Long idDocumento, PedidoEstado estadoPedido);
-
-    // 8. Buscar por atendimento e estado
-    List<Pedido> findByAtendimentoIdAtendimentoAndEstadoPedido(Long idAtendimento, PedidoEstado estadoPedido);
-
-    // 9. Buscar pedidos entre duas datas
+    
+    // Buscar pedidos entre datas
     List<Pedido> findByDataPedidoBetween(LocalDate inicio, LocalDate fim);
-
-    // 10. Buscar por estado entre datas
-    List<Pedido> findByEstadoPedidoAndDataPedidoBetween(PedidoEstado estadoPedido, LocalDate inicio, LocalDate fim);
-
-    // 11. Ordenar por data crescente
-    List<Pedido> findAllByOrderByDataPedidoAsc();
-
-    // 12. Ordenar por data decrescente
-    List<Pedido> findAllByOrderByDataPedidoDesc();
-
-    // 13. Buscar por documento OU atendimento
-    List<Pedido> findByDocumentoIdDocumentoOrAtendimentoIdAtendimento(Long idDocumento, Long idAtendimento);
+    
+    // Buscar pedidos por estudante e estado
+    List<Pedido> findByEstudanteAndEstadoPedido(Estudante estudante, PedidoEstado estado);
+    
+    // Buscar pedidos por documento
+    List<Pedido> findByDocumentoId(Long documentoId);
+    
+    // Buscar pedidos pendentes há mais de X dias
+    @Query("SELECT p FROM Pedido p WHERE p.estadoPedido = 'PENDENTE' AND p.dataPedido <= :data")
+    List<Pedido> findPedidosPendentesAte(@Param("data") LocalDate data);
+    
+    // Contar pedidos por estado
+    Long countByEstadoPedido(PedidoEstado estado);
+    
+    // Contar pedidos por estudante
+    Long countByEstudante(Estudante estudante);
+    
+    // Verificar se existe código
+    boolean existsByCodigo(String codigo);
+    
+    // Buscar pedidos com levantamento pendente (prontos mas não retirados)
+    @Query("SELECT p FROM Pedido p WHERE p.estadoPedido = 'PRONTO' AND NOT EXISTS (SELECT l FROM Levantamento l WHERE l.pedido = p)")
+    List<Pedido> findPedidosProntosNaoRetirados();
+    
+    // Buscar pedidos por período e estado
+    List<Pedido> findByDataPedidoBetweenAndEstadoPedido(LocalDate inicio, LocalDate fim, PedidoEstado estado);
+    
+    // Buscar últimos pedidos de um estudante
+    List<Pedido> findTop5ByEstudanteOrderByDataPedidoDesc(Estudante estudante);
 }
