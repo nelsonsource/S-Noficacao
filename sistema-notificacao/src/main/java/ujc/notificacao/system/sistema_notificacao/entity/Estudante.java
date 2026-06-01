@@ -1,6 +1,7 @@
 package ujc.notificacao.system.sistema_notificacao.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "estudante")
@@ -8,48 +9,39 @@ public class Estudante {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_estudante")
-    private Long idEstudante;
+    private Long id;
 
-    @Column(name = "codigo_estudante", nullable = false, unique = true, length = 20)
-    private String codigoEstudante;
-
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String apelido;
 
-    @Column(length = 100)
+    @Column(name = "numero_estudante", unique = true, nullable = false, length = 20)
+    private String numeroEstudante;
+
+    @Column(nullable = false, length = 20)
+    private String genero;
+
+    @Column(nullable = false, length = 100)
     private String curso;
 
-    @Column(length = 100)
+    @Column(name = "ano_ingresso", nullable = false)
+    private Integer anoIngresso;
+
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(length = 20)
-    private String telefone;
+    // Construtor padrão
+    public Estudante() {}
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_estudante", nullable = false)
-    private EstadoEstudante estadoEstudante;
-
-    public Estudante() {
+    // Getters e Setters
+    public Long getId() {
+        return id;
     }
 
-    public Long getIdEstudante() {
-        return idEstudante;
-    }
-
-    public void setIdEstudante(Long idEstudante) {
-        this.idEstudante = idEstudante;
-    }
-
-    public String getCodigoEstudante() {
-        return codigoEstudante;
-    }
-
-    public void setCodigoEstudante(String codigoEstudante) {
-        this.codigoEstudante = codigoEstudante;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -68,6 +60,22 @@ public class Estudante {
         this.apelido = apelido;
     }
 
+    public String getNumeroEstudante() {
+        return numeroEstudante;
+    }
+
+    public void setNumeroEstudante(String numeroEstudante) {
+        this.numeroEstudante = numeroEstudante;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
+    }
+
     public String getCurso() {
         return curso;
     }
@@ -76,27 +84,19 @@ public class Estudante {
         this.curso = curso;
     }
 
+    public Integer getAnoIngresso() {
+        return anoIngresso;
+    }
+
+    public void setAnoIngresso(Integer anoIngresso) {
+        this.anoIngresso = anoIngresso;
+    }
+
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
-
-    public EstadoEstudante getEstadoEstudante() {
-        return estadoEstudante;
-    }
-
-    public void setEstadoEstudante(EstadoEstudante estadoEstudante) {
-        this.estadoEstudante = estadoEstudante;
     }
 }
