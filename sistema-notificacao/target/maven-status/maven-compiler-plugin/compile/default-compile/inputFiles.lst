@@ -1,3 +1,5 @@
+C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\config\DataInitializer.java
+C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\config\SecurityConfig.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\controller\CampoDocumentoController.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\controller\DocumentoController.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\controller\EstudanteController.java
@@ -30,6 +32,7 @@ C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\not
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\entity\PedidoEstado.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\entity\PedidoResposta.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\entity\Perfil.java
+C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\entity\Usuario.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\repository\CampoDocumentoRepository.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\repository\DocumentoRepository.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\repository\EstudanteRepository.java
@@ -37,7 +40,9 @@ C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\not
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\repository\LevantamentoRepository.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\repository\PedidoRepository.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\repository\PedidoRespostaRepository.java
+C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\repository\UsuarioRepository.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\service\CampoDocumentoService.java
+C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\service\CustomUserDetailsService.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\service\DocumentoService.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\service\EstudanteService.java
 C:\Users\nelsonmunguambe26\S-Noficacao\sistema-notificacao\src\main\java\ujc\notificacao\system\sistema_notificacao\service\FuncionarioService.java

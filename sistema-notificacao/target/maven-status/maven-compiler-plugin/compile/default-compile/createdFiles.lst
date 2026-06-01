@@ -2,10 +2,13 @@ ujc\notificacao\system\sistema_notificacao\controller\DocumentoController.class
 ujc\notificacao\system\sistema_notificacao\dto\FuncionarioResumoDTO.class
 ujc\notificacao\system\sistema_notificacao\dto\response\EstudanteResponseDTO.class
 ujc\notificacao\system\sistema_notificacao\util\ResponseHandler.class
+ujc\notificacao\system\sistema_notificacao\config\DataInitializer.class
 ujc\notificacao\system\sistema_notificacao\entity\Documento.class
 ujc\notificacao\system\sistema_notificacao\repository\LevantamentoRepository.class
 ujc\notificacao\system\sistema_notificacao\repository\PedidoRespostaRepository.class
 ujc\notificacao\system\sistema_notificacao\entity\PedidoResposta.class
+ujc\notificacao\system\sistema_notificacao\config\SecurityConfig.class
+ujc\notificacao\system\sistema_notificacao\service\CustomUserDetailsService.class
 ujc\notificacao\system\sistema_notificacao\service\EstudanteService.class
 ujc\notificacao\system\sistema_notificacao\dto\request\FuncionarioRequestDTO.class
 ujc\notificacao\system\sistema_notificacao\dto\response\PedidoResponseDTO.class
@@ -23,6 +26,7 @@ ujc\notificacao\system\sistema_notificacao\entity\Pedido.class
 ujc\notificacao\system\sistema_notificacao\service\DocumentoService.class
 ujc\notificacao\system\sistema_notificacao\repository\FuncionarioRepository.class
 ujc\notificacao\system\sistema_notificacao\repository\PedidoRepository.class
+ujc\notificacao\system\sistema_notificacao\entity\Usuario.class
 ujc\notificacao\system\sistema_notificacao\service\PedidoRespostaService.class
 ujc\notificacao\system\sistema_notificacao\entity\Levantamento.class
 ujc\notificacao\system\sistema_notificacao\repository\DocumentoRepository.class
@@ -47,5 +51,6 @@ ujc\notificacao\system\sistema_notificacao\service\LevantamentoService.class
 ujc\notificacao\system\sistema_notificacao\util\ValidationUtils.class
 ujc\notificacao\system\sistema_notificacao\dto\PedidoRespostaDTO.class
 ujc\notificacao\system\sistema_notificacao\controller\PedidoController.class
+ujc\notificacao\system\sistema_notificacao\repository\UsuarioRepository.class
 ujc\notificacao\system\sistema_notificacao\entity\Perfil.class
 ujc\notificacao\system\sistema_notificacao\dto\request\PedidoRequestDTO.class
