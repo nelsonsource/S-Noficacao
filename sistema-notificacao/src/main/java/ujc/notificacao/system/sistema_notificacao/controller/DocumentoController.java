@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/documentos")
+@RequestMapping("/api/documento")
 @CrossOrigin(origins = "*")
 public class DocumentoController {
 

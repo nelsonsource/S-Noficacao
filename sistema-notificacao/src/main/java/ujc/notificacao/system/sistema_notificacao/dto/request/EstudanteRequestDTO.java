@@ -1,7 +1,6 @@
 package ujc.notificacao.system.sistema_notificacao.dto.request;
 
 import jakarta.validation.constraints.*;
-import java.time.LocalDate;
 
 public class EstudanteRequestDTO {
 
