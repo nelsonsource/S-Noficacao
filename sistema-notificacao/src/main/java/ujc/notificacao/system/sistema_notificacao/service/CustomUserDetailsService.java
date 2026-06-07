@@ -1,5 +1,6 @@
 package ujc.notificacao.system.sistema_notificacao.service;
 
+import ujc.notificacao.system.sistema_notificacao.entity.Usuario;
 import ujc.notificacao.system.sistema_notificacao.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,11 +15,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UsuarioRepository usuarioRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        // Tenta buscar por email primeiro (ADMIN e SECRETARIA)
-        // Depois tenta buscar por código (ESTUDANTE)
-        return usuarioRepository.findByEmail(login)
-                .or(() -> usuarioRepository.findByCodigo(login))
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + login));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com email: " + email));
+
+        return usuario;
     }
 }

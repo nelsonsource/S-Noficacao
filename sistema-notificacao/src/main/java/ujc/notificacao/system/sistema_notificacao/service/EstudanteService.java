@@ -158,8 +158,8 @@ public class EstudanteService {
         estudanteRepository.deleteById(id);
     }
 
-    // Contar estudantes por curso
-    public Long contarPorCurso(String curso) {
-        return estudanteRepository.countByCurso(curso);
-    }
+//    // Contar estudantes por curso
+//    public Long contarPorCurso(String curso) {
+//        return estudanteRepository.countByCurso(curso);
+//    }
 }
