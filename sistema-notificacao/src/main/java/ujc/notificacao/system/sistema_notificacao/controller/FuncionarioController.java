@@ -8,18 +8,39 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/funcionario")
 @CrossOrigin(origins = "*")
+@Tag(name = "Funcionários", description = "API para gestão de funcionários da universidade (secretários, administrativos, etc.)")
+@SecurityRequirement(name = "basicAuth")
 public class FuncionarioController {
 
     @Autowired
     private FuncionarioService funcionarioService;
 
     @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody FuncionarioRequestDTO dto) {
+    @Operation(summary = "Criar novo funcionário",
+            description = "Cadastra um novo funcionário no sistema com os dados fornecidos")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos, duplicados ou obrigatórios não preenchidos"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    public ResponseEntity<?> criar(
+            @Parameter(description = "Dados do funcionário a ser criado", required = true)
+            @Valid @RequestBody FuncionarioRequestDTO dto) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.criarFuncionario(dto);
             return ResponseHandler.created(funcionario, "Funcionário criado com sucesso");
@@ -33,13 +54,30 @@ public class FuncionarioController {
     }
 
     @GetMapping
+    @Operation(summary = "Listar todos os funcionários",
+            description = "Retorna uma lista com todos os funcionários cadastrados no sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de funcionários obtida com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     public ResponseEntity<?> listarTodos() {
         List<FuncionarioResponseDTO> funcionarios = funcionarioService.listarTodos();
         return ResponseHandler.ok(funcionarios, "Lista de funcionários obtida com sucesso");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+    @Operation(summary = "Buscar funcionário por ID",
+            description = "Retorna um funcionário específico baseado no seu identificador")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Funcionário encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Funcionário não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    public ResponseEntity<?> buscarPorId(
+            @Parameter(description = "ID do funcionário", example = "1", required = true)
+            @PathVariable Long id) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.buscarPorId(id);
             return ResponseHandler.ok(funcionario, "Funcionário encontrado");
@@ -49,7 +87,17 @@ public class FuncionarioController {
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<?> buscarPorEmail(@PathVariable String email) {
+    @Operation(summary = "Buscar funcionário por email",
+            description = "Retorna um funcionário específico baseado no seu endereço de email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Funcionário encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Funcionário não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    public ResponseEntity<?> buscarPorEmail(
+            @Parameter(description = "Email do funcionário", example = "carlos.macamo@ujc.ac.mz", required = true)
+            @PathVariable String email) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.buscarPorEmail(email);
             return ResponseHandler.ok(funcionario, "Funcionário encontrado");
@@ -59,7 +107,17 @@ public class FuncionarioController {
     }
 
     @GetMapping("/buscar/nome")
-    public ResponseEntity<?> buscarPorNome(@RequestParam String nome) {
+    @Operation(summary = "Buscar funcionários por nome",
+            description = "Retorna uma lista de funcionários cujo nome contenha o texto informado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso (pode retornar lista vazia)"),
+            @ApiResponse(responseCode = "400", description = "Parâmetro de busca inválido"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    public ResponseEntity<?> buscarPorNome(
+            @Parameter(description = "Nome ou parte do nome do funcionário", example = "Carlos", required = true)
+            @RequestParam String nome) {
         try {
             List<FuncionarioResponseDTO> funcionarios = funcionarioService.buscarPorNome(nome);
             if (funcionarios.isEmpty()) {
@@ -72,7 +130,16 @@ public class FuncionarioController {
     }
 
     @GetMapping("/curso/{curso}")
-    public ResponseEntity<?> buscarPorCurso(@PathVariable String curso) {
+    @Operation(summary = "Buscar funcionários por curso/sector",
+            description = "Retorna uma lista de funcionários que atuam no curso ou sector informado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Funcionários do curso encontrados (pode ser lista vazia)"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    public ResponseEntity<?> buscarPorCurso(
+            @Parameter(description = "Nome do curso ou sector", example = "Secretaria Académica", required = true)
+            @PathVariable String curso) {
         List<FuncionarioResponseDTO> funcionarios = funcionarioService.buscarPorCurso(curso);
         if (funcionarios.isEmpty()) {
             return ResponseHandler.ok(funcionarios, "Nenhum funcionário encontrado no curso: " + curso);
@@ -81,7 +148,21 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestBody FuncionarioRequestDTO dto) {
+    @Operation(summary = "Atualizar funcionário",
+            description = "Atualiza os dados de um funcionário existente pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Funcionário atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou duplicados"),
+            @ApiResponse(responseCode = "404", description = "Funcionário não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    public ResponseEntity<?> atualizar(
+            @Parameter(description = "ID do funcionário", example = "1", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Dados atualizados do funcionário", required = true)
+            @Valid @RequestBody FuncionarioRequestDTO dto) {
         try {
             FuncionarioResponseDTO funcionario = funcionarioService.atualizarFuncionario(id, dto);
             return ResponseHandler.ok(funcionario, "Funcionário atualizado com sucesso");
@@ -98,7 +179,18 @@ public class FuncionarioController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id) {
+    @Operation(summary = "Deletar funcionário",
+            description = "Remove um funcionário do sistema pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Funcionário deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Funcionário não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    public ResponseEntity<?> deletar(
+            @Parameter(description = "ID do funcionário", example = "1", required = true)
+            @PathVariable Long id) {
         try {
             funcionarioService.deletarFuncionario(id);
             return ResponseHandler.noContent("Funcionário deletado com sucesso");
