@@ -1,5 +1,15 @@
 package ujc.notificacao.system.sistema_notificacao.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import ujc.notificacao.system.sistema_notificacao.config.SecurityConfig;
+import ujc.notificacao.system.sistema_notificacao.dto.EstudanteResumoDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.request.EstudanteRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.EstudanteResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.list.EstudanteListDTO;
@@ -14,13 +24,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/estudante")
 @CrossOrigin(origins = "*")
+@Tag(name = "Estudantes", description = "API para gestão de estudantes académicos")
+//@SecurityRequirement(name = "bearerAuth")
 public class EstudanteController {
 
     @Autowired
     private EstudanteService estudanteService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody EstudanteRequestDTO dto) {
+    @Operation(summary = "Criar novo estudante", description = "Cadastra um novo estudante no sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Estudante criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos, duplicados ou obrigatórios não preenchidos"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+//    @PreAuthorize("hasRole('ALUNO')")
+    public ResponseEntity<?> criar(
+            @Parameter(description = "Dados do estudante a ser criado", required = true)
+            @Valid @RequestBody EstudanteRequestDTO dto) {
         try {
             EstudanteResponseDTO estudante = estudanteService.criarEstudante(dto);
             return ResponseHandler.created(estudante, "Estudante criado com sucesso");
@@ -34,13 +59,32 @@ public class EstudanteController {
     }
 
     @GetMapping
+    @Operation(summary = "Listar todos os estudantes",
+            description = "Retorna uma lista com todos os estudantes cadastrados no sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de estudantes obtida com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+//    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
     public ResponseEntity<?> listarTodos() {
         List<EstudanteListDTO> estudantes = estudanteService.listarTodos();
         return ResponseHandler.ok(estudantes, "Lista de estudantes obtida com sucesso");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+    @Operation(summary = "Buscar estudante por ID",
+            description = "Retorna um estudante específico baseado no seu identificador")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estudante encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Estudante não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
+    public ResponseEntity<?> buscarPorId(
+            @Parameter(description = "ID do estudante", example = "1", required = true)
+            @PathVariable Long id) {
         try {
             EstudanteResponseDTO estudante = estudanteService.buscarPorId(id);
             return ResponseHandler.ok(estudante, "Estudante encontrado");
@@ -49,8 +93,19 @@ public class EstudanteController {
         }
     }
 
-    @GetMapping("/numero/{numeroEstudante}")
-    public ResponseEntity<?> buscarPorNumero(@PathVariable String numeroEstudante) {
+    @GetMapping("/busca/{numeroEstudante}")
+    @Operation(summary = "Buscar estudante por número de estudante",
+            description = "Retorna um estudante específico baseado no seu número de matrícula/estudante")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estudante encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Estudante não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
+    public ResponseEntity<?> buscarPorNumero(
+            @Parameter(description = "Número de estudante (matrícula)", example = "20240001", required = true)
+            @PathVariable String numeroEstudante) {
         try {
             EstudanteResponseDTO estudante = estudanteService.buscarPorNumeroEstudante(numeroEstudante);
             return ResponseHandler.ok(estudante, "Estudante encontrado");
@@ -59,8 +114,19 @@ public class EstudanteController {
         }
     }
 
-    @GetMapping("/buscar/nome")
-    public ResponseEntity<?> buscarPorNome(@RequestParam String nome) {
+    @GetMapping("/nome")
+    @Operation(summary = "Buscar estudantes por nome",
+            description = "Retorna uma lista de estudantes cujo nome contenha o texto informado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso (pode retornar lista vazia)"),
+            @ApiResponse(responseCode = "400", description = "Parâmetro de busca inválido"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
+    public ResponseEntity<?> buscarPorNome(
+            @Parameter(description = "Nome ou parte do nome do estudante", example = "Fernando", required = true)
+            @RequestParam String nome) {
         try {
             List<EstudanteListDTO> estudantes = estudanteService.buscarPorNome(nome);
             if (estudantes.isEmpty()) {
@@ -73,7 +139,17 @@ public class EstudanteController {
     }
 
     @GetMapping("/curso/{curso}")
-    public ResponseEntity<?> buscarPorCurso(@PathVariable String curso) {
+    @Operation(summary = "Buscar estudantes por curso",
+            description = "Retorna uma lista de estudantes matriculados no curso informado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estudantes do curso encontrados (pode ser lista vazia)"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
+    public ResponseEntity<?> buscarPorCurso(
+            @Parameter(description = "Nome do curso", example = "Engenharia em Tecnologias e Sistemas de Informação", required = true)
+            @PathVariable String curso) {
         List<EstudanteListDTO> estudantes = estudanteService.buscarPorCurso(curso);
         if (estudantes.isEmpty()) {
             return ResponseHandler.ok(estudantes, "Nenhum estudante encontrado no curso: " + curso);
@@ -81,8 +157,19 @@ public class EstudanteController {
         return ResponseHandler.ok(estudantes, "Estudantes do curso " + curso);
     }
 
-    @GetMapping("/buscar/termo")
-    public ResponseEntity<?> buscarPorTermo(@RequestParam String termo) {
+    @GetMapping("/termo")
+    @Operation(summary = "Busca geral por termo",
+            description = "Pesquisa estudantes por um termo geral (nome, email, curso, número de estudante)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Parâmetro de busca inválido"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
+    public ResponseEntity<?> buscarPorTermo(
+            @Parameter(description = "Termo de busca geral", example = "Macamo", required = true)
+            @RequestParam String termo) {
         try {
             List<EstudanteListDTO> estudantes = estudanteService.buscarPorTermo(termo);
             return ResponseHandler.ok(estudantes, "Busca realizada com sucesso");
@@ -92,7 +179,22 @@ public class EstudanteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @Valid @RequestBody EstudanteRequestDTO dto) {
+    @Operation(summary = "Atualizar estudante",
+            description = "Atualiza os dados de um estudante existente pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estudante atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou duplicados"),
+            @ApiResponse(responseCode = "404", description = "Estudante não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
+    public ResponseEntity<?> atualizar(
+            @Parameter(description = "ID do estudante", example = "1", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "Dados atualizados do estudante", required = true)
+            @Valid @RequestBody EstudanteRequestDTO dto) {
         try {
             EstudanteResponseDTO estudante = estudanteService.atualizarEstudante(id, dto);
             return ResponseHandler.ok(estudante, "Estudante atualizado com sucesso");
@@ -109,7 +211,19 @@ public class EstudanteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id) {
+    @Operation(summary = "Deletar estudante",
+            description = "Remove um estudante do sistema pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Estudante deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Estudante não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA', 'ALUNO')")
+    public ResponseEntity<?> deletar(
+            @Parameter(description = "ID do estudante", example = "1", required = true)
+            @PathVariable Long id) {
         try {
             estudanteService.deletarEstudante(id);
             return ResponseHandler.noContent("Estudante deletado com sucesso");
@@ -121,9 +235,9 @@ public class EstudanteController {
         }
     }
 
-    @GetMapping("/contar/curso")
-    public ResponseEntity<?> contarPorCurso(@RequestParam String curso) {
-        Long quantidade = estudanteService.contarPorCurso(curso);
-        return ResponseHandler.ok(quantidade, "Total de estudantes no curso " + curso);
-    }
+//    @GetMapping("/curso")
+//    public ResponseEntity<?> contarPorCurso(@RequestParam String curso) {
+//        Long quantidade = estudanteService.contarPorCurso(curso);
+//        return ResponseHandler.ok(quantidade, "Total de estudantes no curso " + curso);
+//    }
 }
