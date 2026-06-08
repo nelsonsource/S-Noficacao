@@ -47,13 +47,12 @@ public class JwtUtil {
 
             Map<String, Object> claims = new HashMap<>();
 
-            // ⭐ Remove o prefixo "ROLE_" para usar com hasAuthority
             List<String> authorities = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .map(auth -> auth.replace("ROLE_", ""))
                     .collect(Collectors.toList());
 
-            claims.put("authorities", authorities);  // use "authorities" em vez de "roles"
+            claims.put("authorities", authorities);  
             return createToken(claims, userDetails.getUsername());
 
     }
