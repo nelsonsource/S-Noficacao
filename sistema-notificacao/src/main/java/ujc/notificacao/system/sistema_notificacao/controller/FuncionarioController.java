@@ -111,7 +111,7 @@ public class FuncionarioController {
         }
     }
 
-    @GetMapping("/buscar/nome")
+    @GetMapping("/nome")
     @Operation(summary = "Buscar funcionários por nome",
             description = "Retorna uma lista de funcionários cujo nome contenha o texto informado")
     @ApiResponses(value = {

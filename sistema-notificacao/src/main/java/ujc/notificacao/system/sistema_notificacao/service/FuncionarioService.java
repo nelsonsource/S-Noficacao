@@ -57,6 +57,8 @@ public class FuncionarioService {
 
         Usuario secretaria = new Usuario();
         secretaria.setEmail(dto.getEmail());
+
+        secretaria.setCodigo(dto.getCodigo());
         secretaria.setSenha(encoder.encode("123456"));
         secretaria.setPerfil(Perfil.SECRETARIA);
         secretaria.setFuncionarioId(funcionario.getId());

@@ -18,6 +18,17 @@ public class FuncionarioRequestDTO {
     @Pattern(regexp = "^\\d{9,12}$", message = "Telefone deve ter 9 a 12 dígitos")
     private String telefone;
 
+    @NotBlank(message = "Codigo do funcionario")
+    private String codigo;
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
     @NotBlank(message = "Email é obrigatório")
     @Email(message = "Email deve ser válido")
     private String email;
