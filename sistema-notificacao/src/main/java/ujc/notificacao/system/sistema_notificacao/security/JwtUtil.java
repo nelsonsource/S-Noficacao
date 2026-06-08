@@ -45,15 +45,15 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
 
-            Map<String, Object> claims = new HashMap<>();
+        Map<String, Object> claims = new HashMap<>();
 
-            List<String> authorities = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .map(auth -> auth.replace("ROLE_", ""))
-                    .collect(Collectors.toList());
+        List<String> authorities = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(auth -> auth.replace("ROLE_", ""))
+                .collect(Collectors.toList());
 
-            claims.put("authorities", authorities);  
-            return createToken(claims, userDetails.getUsername());
+        claims.put("authorities", authorities);
+        return createToken(claims, userDetails.getUsername());
 
     }
 
