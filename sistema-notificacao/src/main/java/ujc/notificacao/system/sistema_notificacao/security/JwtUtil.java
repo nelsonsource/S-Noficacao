@@ -10,8 +10,11 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.springframework.security.core.GrantedAuthority;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
@@ -41,9 +44,18 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", userDetails.getAuthorities());
-        return createToken(claims, userDetails.getUsername());
+
+            Map<String, Object> claims = new HashMap<>();
+
+            // ⭐ Remove o prefixo "ROLE_" para usar com hasAuthority
+            List<String> authorities = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .map(auth -> auth.replace("ROLE_", ""))
+                    .collect(Collectors.toList());
+
+            claims.put("authorities", authorities);  // use "authorities" em vez de "roles"
+            return createToken(claims, userDetails.getUsername());
+
     }
 
     private String createToken(Map<String, Object> claims, String subject) {

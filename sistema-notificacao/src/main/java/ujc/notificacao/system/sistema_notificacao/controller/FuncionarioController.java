@@ -1,5 +1,6 @@
 package ujc.notificacao.system.sistema_notificacao.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import ujc.notificacao.system.sistema_notificacao.dto.request.FuncionarioRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.FuncionarioResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.service.FuncionarioService;
@@ -22,7 +23,7 @@ import java.util.List;
 @RequestMapping("/api/funcionario")
 @CrossOrigin(origins = "*")
 @Tag(name = "Funcionários", description = "API para gestão de funcionários da universidade (secretários, administrativos, etc.)")
-@SecurityRequirement(name = "basicAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class FuncionarioController {
 
     @Autowired
@@ -38,6 +39,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> criar(
             @Parameter(description = "Dados do funcionário a ser criado", required = true)
             @Valid @RequestBody FuncionarioRequestDTO dto) {
@@ -61,6 +63,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> listarTodos() {
         List<FuncionarioResponseDTO> funcionarios = funcionarioService.listarTodos();
         return ResponseHandler.ok(funcionarios, "Lista de funcionários obtida com sucesso");
@@ -75,6 +78,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> buscarPorId(
             @Parameter(description = "ID do funcionário", example = "1", required = true)
             @PathVariable Long id) {
@@ -95,6 +99,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> buscarPorEmail(
             @Parameter(description = "Email do funcionário", example = "carlos.macamo@ujc.ac.mz", required = true)
             @PathVariable String email) {
@@ -115,6 +120,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> buscarPorNome(
             @Parameter(description = "Nome ou parte do nome do funcionário", example = "Carlos", required = true)
             @RequestParam String nome) {
@@ -137,6 +143,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> buscarPorCurso(
             @Parameter(description = "Nome do curso ou sector", example = "Secretaria Académica", required = true)
             @PathVariable String curso) {
@@ -158,6 +165,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN','SECRETARIA')")
     public ResponseEntity<?> atualizar(
             @Parameter(description = "ID do funcionário", example = "1", required = true)
             @PathVariable Long id,
@@ -188,6 +196,7 @@ public class FuncionarioController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deletar(
             @Parameter(description = "ID do funcionário", example = "1", required = true)
             @PathVariable Long id) {

@@ -31,21 +31,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String email = null;
         String jwt = null;
 
+        // ⭐ LOG 1 - Verificar se o header está chegando
+        System.out.println("========== JWT FILTER ==========");
+        System.out.println("URL: " + request.getRequestURL());
+        System.out.println("Auth Header: " + authorizationHeader);
+
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            email = jwtUtil.extractEmail(jwt);
+            System.out.println("Token recebido: " + jwt.substring(0, Math.min(jwt.length(), 50)) + "...");
+
+            try {
+                email = jwtUtil.extractEmail(jwt);
+                System.out.println("Email extraído: " + email);
+            } catch (Exception e) {
+                System.out.println("❌ Erro ao extrair email: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("❌ Header inválido ou ausente");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+            try {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+                System.out.println("UserDetails carregado: " + userDetails.getUsername());
+                System.out.println("Autoridades: " + userDetails.getAuthorities());
 
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    System.out.println("✅ Token válido! Autenticado com sucesso!");
+                } else {
+                    System.out.println("❌ Token inválido ou expirado!");
+                }
+            } catch (Exception e) {
+                System.out.println("❌ Erro ao carregar usuário: " + e.getMessage());
             }
         }
+
+        System.out.println("=================================");
         chain.doFilter(request, response);
     }
 }

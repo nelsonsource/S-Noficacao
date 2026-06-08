@@ -65,7 +65,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + perfil.name()));
+        return List.of(new SimpleGrantedAuthority(perfil.name()));
     }
 
     @Override
@@ -73,8 +73,8 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() { 
-        // ADMIN e SECRETARIA usam email, ALUNO usa código
-        return perfil == Perfil.ALUNO ? codigo : email;
+
+        return email;
     }
 
     @Override

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.access.prepost.PreAuthorize;
 import ujc.notificacao.system.sistema_notificacao.dto.request.EstudanteRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.EstudanteResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.list.EstudanteListDTO;
@@ -21,7 +22,7 @@ import java.util.List;
 @RequestMapping("/api/estudante")
 @CrossOrigin(origins = "*")
 @Tag(name = "Estudantes", description = "API para gestão de estudantes académicos")
-@SecurityRequirement(name = "basicAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class EstudanteController {
 
     @Autowired
@@ -36,6 +37,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> criar(
             @Parameter(description = "Dados do estudante a ser criado", required = true)
             @Valid @RequestBody EstudanteRequestDTO dto) {
@@ -59,6 +61,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> listarTodos() {
         List<EstudanteListDTO> estudantes = estudanteService.listarTodos();
         return ResponseHandler.ok(estudantes, "Lista de estudantes obtida com sucesso");
@@ -73,6 +76,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> buscarPorId(
             @Parameter(description = "ID do estudante", example = "1", required = true)
             @PathVariable Long id) {
@@ -93,6 +97,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> buscarPorNumero(
             @Parameter(description = "Número de estudante (matrícula)", example = "20240001", required = true)
             @PathVariable String numeroEstudante) {
@@ -113,6 +118,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> buscarPorNome(
             @Parameter(description = "Nome ou parte do nome do estudante", example = "Fernando", required = true)
             @RequestParam String nome) {
@@ -135,6 +141,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> buscarPorCurso(
             @Parameter(description = "Nome do curso", example = "Engenharia em Tecnologias e Sistemas de Informação", required = true)
             @PathVariable String curso) {
@@ -154,6 +161,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN','SECRETARA')")
     public ResponseEntity<?> buscarPorTermo(
             @Parameter(description = "Termo de busca geral", example = "Macamo", required = true)
             @RequestParam String termo) {
@@ -176,6 +184,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN','ALUNO')")
     public ResponseEntity<?> atualizar(
             @Parameter(description = "ID do estudante", example = "1", required = true)
             @PathVariable Long id,
@@ -206,6 +215,7 @@ public class EstudanteController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<?> deletar(
             @Parameter(description = "ID do estudante", example = "1", required = true)
             @PathVariable Long id) {

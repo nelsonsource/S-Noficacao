@@ -1,10 +1,14 @@
 package ujc.notificacao.system.sistema_notificacao.service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import ujc.notificacao.system.sistema_notificacao.entity.Estudante;
+import ujc.notificacao.system.sistema_notificacao.entity.Perfil;
+import ujc.notificacao.system.sistema_notificacao.entity.Usuario;
 import ujc.notificacao.system.sistema_notificacao.repository.EstudanteRepository;
 import ujc.notificacao.system.sistema_notificacao.dto.request.EstudanteRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.EstudanteResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.list.EstudanteListDTO;
+import ujc.notificacao.system.sistema_notificacao.repository.UsuarioRepository;
 import ujc.notificacao.system.sistema_notificacao.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,11 @@ public class EstudanteService {
 
     @Autowired
     private EstudanteRepository estudanteRepository;
+
+    @Autowired
+    UsuarioRepository usuarioRepository;
+
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     // Criar novo estudante
     @Transactional
@@ -52,9 +61,18 @@ public class EstudanteService {
         estudante.setCurso(dto.getCurso());
         estudante.setAnoIngresso(dto.getAnoIngresso());
         estudante.setEmail(dto.getEmail());
+
+        Estudante saved = estudanteRepository.save(estudante);
+
+        Usuario aluno = new Usuario();
+        aluno.setEmail(dto.getEmail());
+        aluno.setCodigo(dto.getNumeroEstudante());
+        aluno.setSenha(encoder.encode("123456"));
+        aluno.setPerfil(Perfil.ALUNO);
+        aluno.setEstudanteId(estudante.getId());
+        usuarioRepository.save(aluno);
         
         // Salvar
-        Estudante saved = estudanteRepository.save(estudante);
         return new EstudanteResponseDTO(saved);
     }
 

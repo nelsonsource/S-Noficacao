@@ -1,5 +1,6 @@
 package ujc.notificacao.system.sistema_notificacao.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import ujc.notificacao.system.sistema_notificacao.dto.request.LevantamentoRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.LevantamentoResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.service.LevantamentoService;
@@ -24,7 +25,7 @@ import java.util.List;
 @RequestMapping("/api/levantamento")
 @CrossOrigin(origins = "*")
 @Tag(name = "Levantamentos", description = "API para gestão de levantamentos de documentos (entrega ao estudante)")
-@SecurityRequirement(name = "basicAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class LevantamentoController {
 
     @Autowired
@@ -42,6 +43,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> registrar(
             @Parameter(description = "Dados do levantamento", required = true)
             @Valid @RequestBody LevantamentoRequestDTO dto) {
@@ -71,6 +73,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> listarTodos() {
         List<LevantamentoResponseDTO> levantamentos = levantamentoService.listarTodos();
         return ResponseHandler.ok(levantamentos, "Lista de levantamentos obtida com sucesso");
@@ -85,6 +88,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorId(
             @Parameter(description = "ID do levantamento", example = "1", required = true)
             @PathVariable Long id) {
@@ -105,6 +109,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorPedido(
             @Parameter(description = "ID do pedido", example = "1", required = true)
             @PathVariable Long pedidoId) {
@@ -124,6 +129,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorData(
             @Parameter(description = "Data dos levantamentos (formato: yyyy-MM-dd)", example = "2024-01-15", required = true)
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
@@ -140,6 +146,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorPeriodo(
             @Parameter(description = "Data inicial do período (formato: yyyy-MM-dd)", example = "2024-01-01", required = true)
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
@@ -161,6 +168,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> buscarPorFuncionario(
             @Parameter(description = "ID do funcionário", example = "1", required = true)
             @PathVariable Long funcionarioId) {
@@ -181,6 +189,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> contarPorFuncionario(
             @Parameter(description = "ID do funcionário", example = "1", required = true)
             @PathVariable Long funcionarioId) {
@@ -200,6 +209,7 @@ public class LevantamentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> ultimosLevantamentos() {
         List<LevantamentoResponseDTO> levantamentos = levantamentoService.buscarUltimosLevantamentos();
         return ResponseHandler.ok(levantamentos, "Últimos 10 levantamentos");

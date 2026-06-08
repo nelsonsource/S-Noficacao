@@ -94,6 +94,9 @@ public class DataInitializer implements CommandLineRunner {
         
         System.out.println("=========================================");
         System.out.println("DataInitializer FINALIZADO!");
+        System.out.println("✅ ESTUDANTE criado - Email:joao.silva@email.com  | Senha: joao123");
+        System.out.println("✅ SECRETARIA criado - Email: secretaria@email.com | Senha: secretaria123");
+        System.out.println("✅ ADMIN criado - Email: admin@admin.com | Senha: admin123");
         System.out.println("=========================================");
     }
 }
