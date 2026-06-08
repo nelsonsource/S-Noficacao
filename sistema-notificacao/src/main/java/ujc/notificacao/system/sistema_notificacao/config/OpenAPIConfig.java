@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class OpenAPIConfig {
 
     @Bean
@@ -26,12 +27,13 @@ public class OpenAPIConfig {
                         .license(new License()
                                 .name("Apache 2.0")
                                 .url("http://springdoc.org")))
-                .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
-                        .addSecuritySchemes("basicAuth", new SecurityScheme()
-                                .name("basicAuth")
+                        .addSecuritySchemes("bearerAuth", new SecurityScheme()
+                                .name("bearerAuth")
                                 .type(SecurityScheme.Type.HTTP)
-                                .scheme("basic")
-                                .description("Autenticação Basic Auth. Insira seu email e senha")));
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .description("Insira o token JWT no formato: Bearer {token}")));
     }
 }

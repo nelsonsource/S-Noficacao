@@ -1,9 +1,13 @@
 package ujc.notificacao.system.sistema_notificacao.service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import ujc.notificacao.system.sistema_notificacao.entity.Funcionario;
+import ujc.notificacao.system.sistema_notificacao.entity.Perfil;
+import ujc.notificacao.system.sistema_notificacao.entity.Usuario;
 import ujc.notificacao.system.sistema_notificacao.repository.FuncionarioRepository;
 import ujc.notificacao.system.sistema_notificacao.dto.request.FuncionarioRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.FuncionarioResponseDTO;
+import ujc.notificacao.system.sistema_notificacao.repository.UsuarioRepository;
 import ujc.notificacao.system.sistema_notificacao.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,11 @@ public class FuncionarioService {
 
     @Autowired
     private FuncionarioRepository funcionarioRepository;
+
+    @Autowired
+    UsuarioRepository usuarioRepository;
+
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     // Criar novo funcionário
     @Transactional
@@ -45,6 +54,15 @@ public class FuncionarioService {
         funcionario.setEmail(dto.getEmail());
         
         Funcionario saved = funcionarioRepository.save(funcionario);
+
+        Usuario secretaria = new Usuario();
+        secretaria.setEmail(dto.getEmail());
+        secretaria.setSenha(encoder.encode("123456"));
+        secretaria.setPerfil(Perfil.SECRETARIA);
+        secretaria.setFuncionarioId(funcionario.getId());
+
+        usuarioRepository.save(secretaria);
+
         return new FuncionarioResponseDTO(saved);
     }
 

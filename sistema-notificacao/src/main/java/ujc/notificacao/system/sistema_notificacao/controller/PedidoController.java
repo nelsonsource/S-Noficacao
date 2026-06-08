@@ -1,5 +1,6 @@
 package ujc.notificacao.system.sistema_notificacao.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import ujc.notificacao.system.sistema_notificacao.dto.request.PedidoRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.PedidoResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.service.PedidoService;
@@ -24,7 +25,7 @@ import java.util.List;
 @RequestMapping("/api/pedido")
 @CrossOrigin(origins = "*")
 @Tag(name = "Pedidos", description = "API para gestão de pedidos de documentos académicos")
-@SecurityRequirement(name = "basicAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class PedidoController {
 
     @Autowired
@@ -42,6 +43,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> criar(
             @Parameter(description = "Dados do pedido", required = true)
             @Valid @RequestBody PedidoRequestDTO dto) {
@@ -71,6 +73,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> listarTodos() {
         List<PedidoResponseDTO> pedidos = pedidoService.listarTodos();
         return ResponseHandler.ok(pedidos, "Lista de pedidos obtida com sucesso");
@@ -85,6 +88,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorId(
             @Parameter(description = "ID do pedido", example = "1", required = true)
             @PathVariable Long id) {
@@ -105,6 +109,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorCodigo(
             @Parameter(description = "Código do pedido", example = "PED2024001", required = true)
             @PathVariable String codigo) {
@@ -125,6 +130,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> buscarPorEstudante(
             @Parameter(description = "ID do estudante", example = "1", required = true)
             @PathVariable Long estudanteId) {
@@ -145,6 +151,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorEstado(
             @Parameter(description = "Estado do pedido", example = "PENDENTE", required = true)
             @PathVariable String estado) {
@@ -164,6 +171,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorData(
             @Parameter(description = "Data dos pedidos (formato: yyyy-MM-dd)", example = "2024-01-15", required = true)
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
@@ -180,6 +188,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorPeriodo(
             @Parameter(description = "Data inicial (formato: yyyy-MM-dd)", example = "2024-01-01", required = true)
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
@@ -192,7 +201,7 @@ public class PedidoController {
         return ResponseHandler.ok(pedidos, "Pedidos do período");
     }
 
-    @PatchMapping("/{id}/estado")
+    @PutMapping("/{id}/estado")
     @Operation(summary = "Atualizar estado do pedido",
             description = "Atualiza o estado de um pedido (PENDENTE, PRONTO, ENTREGUE, RECUSADO, CANCELADO)")
     @ApiResponses(value = {
@@ -203,6 +212,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA')")
     public ResponseEntity<?> atualizarEstado(
             @Parameter(description = "ID do pedido", example = "1", required = true)
             @PathVariable Long id,
@@ -233,6 +243,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> cancelarPedido(
             @Parameter(description = "ID do pedido", example = "1", required = true)
             @PathVariable Long id) {
@@ -257,6 +268,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> contarPorEstado(
             @Parameter(description = "Estado do pedido", example = "PENDENTE", required = true)
             @RequestParam String estado) {

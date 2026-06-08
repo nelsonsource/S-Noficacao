@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("/api/campos-documento")
 @CrossOrigin(origins = "*")
 @Tag(name = "Campos de Documento", description = "API para gestão dos campos associados aos documentos acadêmicos")
-@SecurityRequirement(name = "basicAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class CampoDocumentoController {
 
     @Autowired

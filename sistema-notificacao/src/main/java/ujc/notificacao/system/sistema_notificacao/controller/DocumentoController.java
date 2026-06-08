@@ -1,5 +1,6 @@
 package ujc.notificacao.system.sistema_notificacao.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import ujc.notificacao.system.sistema_notificacao.dto.request.DocumentoRequestDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.response.DocumentoResponseDTO;
 import ujc.notificacao.system.sistema_notificacao.dto.CampoDocumentoDTO;
@@ -23,7 +24,7 @@ import java.util.List;
 @RequestMapping("/api/documento")
 @CrossOrigin(origins = "*")
 @Tag(name = "Documentos", description = "API para gestão de documentos académicos (declarações, certificados, etc.)")
-@SecurityRequirement(name = "basicAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class DocumentoController {
 
     @Autowired
@@ -40,6 +41,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<?> criar(
             @Parameter(description = "Dados do documento a ser criado", required = true)
             @Valid @RequestBody DocumentoRequestDTO dto) {
@@ -66,6 +68,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> listarTodos() {
         List<DocumentoResponseDTO> documentos = documentoService.listarTodos();
         return ResponseHandler.ok(documentos, "Lista de documentos obtida com sucesso");
@@ -80,6 +83,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorId(
             @Parameter(description = "ID do documento", example = "1", required = true)
             @PathVariable Long id) {
@@ -100,6 +104,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorCodigo(
             @Parameter(description = "Código único do documento", example = "DEC001", required = true)
             @PathVariable String codigo) {
@@ -119,6 +124,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorNome(
             @Parameter(description = "Nome ou parte do nome do documento", example = "Declaração", required = true)
             @RequestParam String nome) {
@@ -138,6 +144,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SECRETARIA','ALUNO')")
     public ResponseEntity<?> buscarPorFaixaTaxa(
             @Parameter(description = "Valor mínimo da taxa", example = "100", required = true)
             @RequestParam Double min,
@@ -162,6 +169,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<?> atualizar(
             @Parameter(description = "ID do documento", example = "1", required = true)
             @PathVariable Long id,
@@ -195,6 +203,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<?> adicionarCampo(
             @Parameter(description = "ID do documento", example = "1", required = true)
             @PathVariable Long documentoId,
@@ -221,6 +230,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<?> removerCampo(
             @Parameter(description = "ID do documento", example = "1", required = true)
             @PathVariable Long documentoId,
@@ -249,6 +259,7 @@ public class DocumentoController {
             @ApiResponse(responseCode = "403", description = "Acesso negado"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<?> deletar(
             @Parameter(description = "ID do documento", example = "1", required = true)
             @PathVariable Long id) {

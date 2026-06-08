@@ -5,6 +5,7 @@ import ujc.notificacao.system.sistema_notificacao.service.CustomUserDetailsServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)  // Permite usar @PreAuthorize nos Controllers
+@EnableMethodSecurity(prePostEnabled = true)  // ⭐ Permite usar @PreAuthorize nos Controllers
 public class SecurityConfig {
 
     @Autowired
@@ -32,12 +33,11 @@ public class SecurityConfig {
 
     // Endpoints públicos
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/**",           // Login e registro
-            "/swagger-ui/**",         // Swagger UI
-            "/swagger-ui.html",       // Swagger UI
-            "/v3/api-docs/**",        // OpenAPI docs
-            "/api-docs/**",           // OpenAPI docs
-            "/h2-console/**"          // H2 console (se estiver usando)
+            "/api/auth/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/api-docs/**",
     };
 
     @Bean
@@ -47,17 +47,39 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos - qualquer um pode acessar
+                        // Endpoints públicos
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 
-                        // Endpoints específicos por perfil
-                        .requestMatchers("/api/documento/**").hasAnyRole("ADMIN", "SECRETARIA")
-                        .requestMatchers("/api/pedido/**").hasAnyRole("ADMIN", "SECRETARIA", "ALUNO")
-                        .requestMatchers("/api/pedido/criar").hasRole("ALUNO")
-                        .requestMatchers("/api/levantamento/**").hasAnyRole("ADMIN", "SECRETARIA")
-                        .requestMatchers("/api/funcionario/**").hasAnyRole("ADMIN", "SECRETARIA")
-                        .requestMatchers("/api/estudante/**").permitAll()//hasAnyRole("ADMIN", "SECRETARIA", "ALUNO")
+//
+//                                // ===== ESTUDANTE =====
+                        .requestMatchers(HttpMethod.POST, "/api/estudante/**").hasAnyAuthority("ADMIN","SECRETARIA")
+                        .requestMatchers(HttpMethod.DELETE, "/api/estudante/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/estudante/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/estudante/**").hasAnyAuthority("ADMIN","SECRETARIA")
 
+                        // Documento
+                        .requestMatchers(HttpMethod.POST, "/api/documento/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/documento/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/documento/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/documento/**").hasAnyAuthority("ALUNO","ADMIN", "SECRETARIA")
+
+                        // Levantamento
+                        .requestMatchers(HttpMethod.POST, "/api/levantamento/**").hasAnyAuthority("ADMIN", "SECRETARIA")
+                        .requestMatchers(HttpMethod.PUT, "/api/levantamento/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/levantamento/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/levantamento/**").hasAnyAuthority("ALUNO","ADMIN", "SECRETARIA")
+
+                        // pedidos
+                        .requestMatchers(HttpMethod.POST, "/api/pedido/**").hasAnyAuthority("ALUNO","ADMIN", "SECRETARIA")
+                        .requestMatchers(HttpMethod.PUT, "/api/pedido/**").hasAnyAuthority("ADMIN", "SECRETARIA")
+                        .requestMatchers(HttpMethod.DELETE, "/api/pedido/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/pedido/**").hasAnyAuthority("ALUNO","ADMIN", "SECRETARIA")
+
+                        // Funcionario
+                        .requestMatchers(HttpMethod.PUT,"/api/funcionario/**").hasAnyAuthority("ADMIN", "SECRETARIA")
+                        .requestMatchers(HttpMethod.GET,"/api/funcionario/**").hasAnyAuthority("ADMIN", "SECRETARIA")
+                        .requestMatchers(HttpMethod.POST, "/api/funcionario/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/funcionario/**").hasAuthority("ADMIN")
                         // Qualquer outra requisição precisa autenticação
                         .anyRequest().authenticated()
                 )
