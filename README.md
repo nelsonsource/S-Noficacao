@@ -1,4 +1,4 @@
-# S-Noficacao
+# S-Notificacao
 
 API para gestão de **pedidos de documentos académicos**, estudantes, funcionários, levantamentos e documentos, desenvolvida com Spring Boot, Spring Security (JWT), JPA/Hibernate e MySQL.
 
