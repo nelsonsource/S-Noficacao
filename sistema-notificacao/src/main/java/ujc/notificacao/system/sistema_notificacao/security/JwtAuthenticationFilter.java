@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String email = null;
         String jwt = null;
 
-        // ⭐ LOG 1 - Verificar se o header está chegando
+        // LOG 1 - Verificar se o header está chegando
         System.out.println("========== JWT FILTER ==========");
         System.out.println("URL: " + request.getRequestURL());
         System.out.println("Auth Header: " + authorizationHeader);
@@ -44,11 +44,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 email = jwtUtil.extractEmail(jwt);
                 System.out.println("Email extraído: " + email);
             } catch (Exception e) {
-                System.out.println("❌ Erro ao extrair email: " + e.getMessage());
+                System.out.println("Erro ao extrair email: " + e.getMessage());
                 e.printStackTrace();
             }
         } else {
-            System.out.println("❌ Header inválido ou ausente");
+            System.out.println("Header inválido ou ausente");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -62,12 +62,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    System.out.println("✅ Token válido! Autenticado com sucesso!");
+                    System.out.println("Token válido! Autenticado com sucesso!");
                 } else {
-                    System.out.println("❌ Token inválido ou expirado!");
+                    System.out.println("Token inválido ou expirado!");
                 }
             } catch (Exception e) {
-                System.out.println("❌ Erro ao carregar usuário: " + e.getMessage());
+                System.out.println("Erro ao carregar usuário: " + e.getMessage());
             }
         }
 
