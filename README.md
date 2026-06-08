@@ -51,5 +51,5 @@ API para gestão de **pedidos de documentos académicos**, estudantes, funcioná
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/nelsonsource/sistema-notificacao.git
+git clone git@github.com:nelsonsource/S-notificacao.git
 cd sistema-notificacao
